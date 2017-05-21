@@ -95,14 +95,7 @@ namespace SCG
 				if (tableSlotIndex <= _tableSlots.Capacity)
 					_tableSlots.Add(cardModel);
 				else return false;
-			//else _tableSlots[tableSlotIndex] = cardModel;
-
 			_handSlots.RemoveAt(handSlotIndex);
-				 //_tableSlots[tableSlotIndex] != null) return false;
-
-			//; [tableSlotIndex] = _handSlots[handSlotIndex];
-
-
 			return true;
 		}
 	}
