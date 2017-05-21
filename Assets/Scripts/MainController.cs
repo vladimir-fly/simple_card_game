@@ -22,18 +22,31 @@ namespace SCG
 
 		public void Init(List<CardModel> cardModels, int handSlotsCount = 3, int tableSlotsCount = 5)
 		{
+			Debug.Log(string.Format("[MainController][Init] Card models = {0}.", cardModels.Count));
+
 			_cardModels = cardModels;
 			_cardDeck = new Queue<CardModel>(_cardModels);
 			_handSlots = new List<CardModel>(handSlotsCount);
 			_tableSlots = new List<CardModel>(tableSlotsCount);
 		}
 
+		public void ReturnCards()
+		{
+			Debug.Log("[MainController][ReturnCards]");
+
+			var cardModels = _handSlots.Where(cardModel => cardModel != null).ToList();
+			_handSlots.Clear();
+			cardModels.ForEach(_cardDeck.Enqueue);
+
+			if (ReturnCardsCallback != null)
+				ReturnCardsCallback();
+		}
+
 		public CardModel GetCard()
 		{
+			Debug.Log(string.Format("[MainCotroller][GetCard] Cards = {0}", _cardDeck.Count));
+
 			CardModel cardModel = null;
-
-			Debug.Log("[MainController][GetCard]");
-
 			if (_handSlots.Count < _handSlots.Capacity && _cardDeck.Any())
 			{
 				cardModel = _cardDeck.Dequeue();
@@ -46,18 +59,10 @@ namespace SCG
 			return cardModel;
 		}
 
-		public void ReturnCards()
-		{
-			var cardModels = _handSlots.Where(cardModel => cardModel != null).ToList();
-			_handSlots.Clear();
-			_cardModels.AddRange(cardModels);
-
-			if (ReturnCardsCallback != null)
-				ReturnCardsCallback();
-		}
-
 		private void DoDamage(CardModel cardModel, int damage)
 		{
+			Debug.Log(string.Format("[MainController][DoDamage] Card name: {0}; damage: {1}.", cardModel.Name, damage));
+
 			var firstOrDefault = _tableSlots.FirstOrDefault(cm => cm == cardModel);
 			if (firstOrDefault != null)
 				firstOrDefault.DoDamage(damage);
@@ -65,6 +70,8 @@ namespace SCG
 
 		public void DoDamageAll(int damage)
 		{
+			Debug.Log(string.Format("[MainController][DoDamageAll] Damage = {0}", damage));
+
 			_tableSlots.ForEach(cardModel => DoDamage(cardModel, damage));
 
 			if (DoDamageCallback != null)

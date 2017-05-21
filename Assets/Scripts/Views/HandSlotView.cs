@@ -4,16 +4,17 @@ namespace SCG
 {
 	public class HandSlotView : MonoBehaviour
 	{
-		public CardView CardView;
+		public CardView CardView { get; private set; }
 
-		private void Start()
+		public void SetCardView(CardView cardView)
 		{
+			CardView = cardView;
+			if (cardView == null) return;
+			cardView.gameObject.transform.SetParent(transform);
+			cardView.gameObject.transform.localPosition = new Vector3(0, 1, 0);
+			cardView.gameObject.transform.Rotate(new Vector3(0f, -90f, 90f), Space.Self);
 
-		}
-
-		private void Update()
-		{
-
+			cardView.canDrag = true;
 		}
 	}
 }

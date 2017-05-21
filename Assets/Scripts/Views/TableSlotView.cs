@@ -1,26 +1,18 @@
 ﻿using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace SCG
 {
-	public class TableSlotView : MonoBehaviour, IDropHandler
+	public class TableSlotView : MonoBehaviour
 	{
-		public CardView CardView;
+		public CardView CardView { get; private set; }
 
-		private void Start()
+		public void SetCardView(CardView cardView)
 		{
+			cardView.gameObject.transform.SetParent(transform);
+			cardView.gameObject.transform.localPosition = new Vector3(0, 1, 0);
+			CardView = cardView;
 
-		}
-
-		private void Update()
-		{
-
-		}
-
-		public void OnDrop(PointerEventData eventData)
-		{
-			Debug.Log("Dropped");
-
+			CardView.canDrag = false;
 		}
 	}
 }

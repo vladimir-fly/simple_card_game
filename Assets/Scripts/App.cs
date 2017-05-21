@@ -7,9 +7,7 @@ namespace SCG
 	public class App : MonoBehaviour
 	{
 		[SerializeField] private MainView _mainView;
-		[SerializeField] private CardView CardViewTemplate;
-
-		//private MainController _mainController;
+		[SerializeField] private CardView _cardViewTemplate;
 
 		//Callbacks for MainView
 		private Action ReturnCardViewsCallback;
@@ -29,10 +27,11 @@ namespace SCG
 
 		private void Init()
 		{
+			Debug.Log("[App][Init]");
+
 			var cardModels = GetCardModels();
 			var cardViews = GenerateCardViews(cardModels);
 
-			//_mainController = .Instance.Init(cardModels);
 			MainController.Instance.Init(cardModels);
 			InitControllerCallbacks();
 
@@ -70,19 +69,18 @@ namespace SCG
 
 		private bool CheckUnityBindings()
 		{
-			if (_mainView == null) Debug.LogError("[App][CheckUnitBindings] MainView not assigned!");
-			return _mainView != null;
+			if (_mainView == null) Debug.LogError("[App][CheckUnityBindings] MainView not assigned!");
+			if (_cardViewTemplate == null) Debug.LogError("[App][CheckUnityBindings] CardViewTemplate not assigned!");
+			return _mainView != null && _cardViewTemplate != null;
 		}
 
 		public List<CardView> GenerateCardViews(List<CardModel> cardModels)
 		{
 			var cardViews = new List<CardView>();
 
-			var i = 0;
 			foreach (var model in cardModels)
 			{
-				var cardView = Instantiate(CardViewTemplate);
-				//cardView.transform.position = new Vector3(0, 0, i++);
+				var cardView = Instantiate(_cardViewTemplate);
 				cardView.Init(model);
 				cardViews.Add(cardView);
 			}

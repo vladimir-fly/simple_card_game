@@ -13,15 +13,15 @@ namespace SCG
 		[SerializeField] private SpriteRenderer _image;
 
 		public CardModel CardModel { get; private set; }
-
-		[HideInInspector] public bool HasMoved;
-
+		private const int layerMask = 1 << 8;
 		private Vector3 _startPosition;
-		private Transform _parentTransform;
-		public int CurrentSlotId;
+		public bool canDrag = false;
+		private bool isDragging;
 
 		public void Init(CardModel cardModel)
 		{
+			Debug.Log("[CardView][Init]");
+
 			CardModel = cardModel;
 
 			_name.text = cardModel.Name;
@@ -32,51 +32,63 @@ namespace SCG
 			_image.sprite = Sprite.Create(Texture2D.blackTexture, Rect.zero, Vector2.down);
 		}
 
-		private void Update()
+		public void GetDamage(int damage)
 		{
-			if (!isDragging) return;
-			var layerMask = 1 << 8; //slot layer
-
-			var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-			var rayInfos = Physics.RaycastAll(ray, Mathf.Infinity, layerMask).ToList();
-			Debug.DrawRay(ray.origin, ray.direction, Color.cyan);
-
-			if (rayInfos.Any())
-			{
-				Debug.Log("rays " + rayInfos.Count);
-
-				var slots = rayInfos.Where(r => r.collider.gameObject.GetComponent<TableSlotView>()).ToList();
-
-				if (slots.Any())
-				{
-					transform.SetParent(slots.FirstOrDefault().transform);
-					transform.localPosition = new Vector3(0, 1, 0);
-					canDrag = false;
-					isDragging = false;
-					Debug.Log("table slot");
-				}
-
-			}
-
+			Debug.Log(string.Format("[CardView][GetDamage] Damage = {0}; Health = {1}", damage, CardModel.Health));
+			CardModel.DoDamage(damage);
 		}
 
-		private bool canDrag = true;
-		private bool isDragging = false;
+		private void Update()
+		{
+			_health.text = CardModel.Health.ToString();
+		}
 
 		private void OnMouseDrag()
 		{
 			if (!canDrag) return;
+			if (!isDragging)
+				_startPosition = transform.localPosition;
 
 			isDragging = true;
 
-			Debug.Log("on drag");
 			var distance = Camera.main.WorldToScreenPoint(gameObject.transform.position).z;
-
 			transform.position =
 				Camera.main.ScreenToWorldPoint(
 					new Vector3(Input.mousePosition.x, Input.mousePosition.y, distance));
 
+			MoveToTableSlot();
 		}
 
+		private void MoveToTableSlot()
+		{
+			if (!isDragging) return;
+
+			var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+			var rayInfos = Physics.RaycastAll(ray, Mathf.Infinity, layerMask).ToList();
+
+			if (!rayInfos.Any()) return;
+			var slots = rayInfos.Where(
+					info =>
+					{
+						var slot = info.collider.gameObject.GetComponent<TableSlotView>();
+						return slot != null && slot.CardView == null;
+					})
+				.ToList();
+
+			if (!slots.Any()) return;
+			var tableSlot = slots.FirstOrDefault().collider.GetComponent<TableSlotView>();
+			var parentHandSlot = transform.parent.GetComponent<HandSlotView>();
+
+			tableSlot.SetCardView(this);
+			parentHandSlot.SetCardView(null);
+
+			isDragging = false;
+		}
+
+		private void OnMouseUp()
+		{
+			if (!isDragging) return;
+			transform.localPosition = _startPosition;
+		}
 	}
 }
