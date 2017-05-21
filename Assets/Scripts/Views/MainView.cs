@@ -13,6 +13,8 @@ namespace SCG
 		[SerializeField] private List<HandSlotView> _handSlotViews;
 		[SerializeField] private List<TableSlotView> _tableSlotViews;
 
+		public Func<CardModel, int, int, bool> MoveCardViewCallback;
+
 		private List<CardView> _cardViews;
 
 		public void Init(List<CardView> cardViews, int handSlotViewCount = 3, int tableSlotViewsCount = 5)
@@ -84,6 +86,18 @@ namespace SCG
 				if (slot.CardView != null)
 					slot.CardView.GetDamage(damage);
 			});
+		}
+
+		public void MoveCardView(CardView target, HandSlotView handSlot, TableSlotView tableSlot)
+		{
+			if (MoveCardViewCallback == null) return;
+
+			var handSlotIndex = _handSlotViews.IndexOf(handSlot);
+			var tableSlotIndex = _tableSlotViews.IndexOf(tableSlot);
+
+			if (!MoveCardViewCallback(target.CardModel, handSlotIndex, tableSlotIndex)) return;
+			tableSlot.SetCardView(target);
+			handSlot.SetCardView(null);
 		}
 
 		private bool CheckUnityBindings()

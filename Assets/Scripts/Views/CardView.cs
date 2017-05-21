@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using UnityEngine;
 
 namespace SCG
@@ -12,13 +13,14 @@ namespace SCG
 		[SerializeField] private TextMesh _imageName;
 		[SerializeField] private SpriteRenderer _image;
 
+		private Action<CardView, HandSlotView, TableSlotView> MoveCardViewCallback;
 		public CardModel CardModel { get; private set; }
 		private const int layerMask = 1 << 8;
 		private Vector3 _startPosition;
 		public bool canDrag = false;
 		private bool isDragging;
 
-		public void Init(CardModel cardModel)
+		public void Init(CardModel cardModel, Action<CardView, HandSlotView, TableSlotView> moveCardViewCallback)
 		{
 			Debug.Log("[CardView][Init]");
 
@@ -30,6 +32,8 @@ namespace SCG
 			_description.text = cardModel.Description;
 			_imageName.text = cardModel.Image;
 			_image.sprite = Sprite.Create(Texture2D.blackTexture, Rect.zero, Vector2.down);
+
+			MoveCardViewCallback = moveCardViewCallback;
 		}
 
 		public void GetDamage(int damage)
@@ -56,10 +60,10 @@ namespace SCG
 				Camera.main.ScreenToWorldPoint(
 					new Vector3(Input.mousePosition.x, Input.mousePosition.y, distance));
 
-			MoveToTableSlot();
+			//LocateTableSlot();
 		}
 
-		private void MoveToTableSlot()
+		private void LocateTableSlot()
 		{
 			if (!isDragging) return;
 
@@ -79,14 +83,16 @@ namespace SCG
 			var tableSlot = slots.FirstOrDefault().collider.GetComponent<TableSlotView>();
 			var parentHandSlot = transform.parent.GetComponent<HandSlotView>();
 
-			tableSlot.SetCardView(this);
-			parentHandSlot.SetCardView(null);
-
 			isDragging = false;
+
+			if (MoveCardViewCallback != null)
+				MoveCardViewCallback(this, parentHandSlot, tableSlot);
 		}
 
 		private void OnMouseUp()
 		{
+			LocateTableSlot();
+
 			if (!isDragging) return;
 			transform.localPosition = _startPosition;
 		}

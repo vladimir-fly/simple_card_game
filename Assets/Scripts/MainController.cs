@@ -42,7 +42,7 @@ namespace SCG
 
 			cardModels.ForEach(_cardDeck.Enqueue);
 
-			_tableSlots.Clear();
+			//_tableSlots.Clear();
 
 			if (ReturnCardsCallback != null)
 				ReturnCardsCallback();
@@ -82,6 +82,28 @@ namespace SCG
 
 			if (DoDamageCallback != null)
 				DoDamageCallback(damage);
+		}
+
+		public bool MoveCard(CardModel cardModel, int handSlotIndex, int tableSlotIndex)
+		{
+			Debug.Log(string.Format("[MainController][MoveCard]Hand slot index = {0}, table slot index = {1}",
+				handSlotIndex, tableSlotIndex));
+
+			if (handSlotIndex > _handSlots.Count) return false;
+
+			if (tableSlotIndex > _tableSlots.Count)
+				if (tableSlotIndex <= _tableSlots.Capacity)
+					_tableSlots.Add(cardModel);
+				else return false;
+			//else _tableSlots[tableSlotIndex] = cardModel;
+
+			_handSlots.RemoveAt(handSlotIndex);
+				 //_tableSlots[tableSlotIndex] != null) return false;
+
+			//; [tableSlotIndex] = _handSlots[handSlotIndex];
+
+
+			return true;
 		}
 	}
 }

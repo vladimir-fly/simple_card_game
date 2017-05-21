@@ -68,6 +68,8 @@ namespace SCG
 			MainController.Instance.GetCardModelCallback = GetCardViewCallback;
 			MainController.Instance.DoDamageCallback = DoDamageCardViewCallback;
 
+			_mainView.MoveCardViewCallback = MainController.Instance.MoveCard;
+
 			_mainView.InitUI(
 				ReturnCardModelsCallback,
 				GetCardModelCallback,
@@ -88,7 +90,7 @@ namespace SCG
 			foreach (var model in cardModels)
 			{
 				var cardView = Instantiate(_cardViewTemplate);
-				cardView.Init(model);
+				cardView.Init(model, _mainView.MoveCardView);
 				cardViews.Add(cardView);
 			}
 
