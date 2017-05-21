@@ -46,6 +46,14 @@ namespace SCG
 				handSlot.SetCardView(null);
 			});
 
+			var tableSlots = _tableSlotViews.Where(ts => ts.CardView != null).ToList();
+			tableSlots.ForEach(tableSlot =>
+			{
+				var cv = tableSlot.CardView;
+				if (cv != null) _cardDeckView.Enqueue(cv);
+				tableSlot.SetCardView(null);
+			});
+
 			Debug.Log(string.Format("[MainView][ReturnCardViews] Ends. CardViews = {0}", _cardDeckView.Count));
 		}
 
@@ -56,9 +64,6 @@ namespace SCG
 			var emptyHandSlots = _handSlotViews.Where(hs => hs.CardView == null);
 			if (emptyHandSlots.Any() && _cardDeckView.Any())
 			{
-				if (_cardDeckView.Peek().CardModel != cardModel)
-					Debug.LogError("[MainView][GetCardView] Not equal card models!");
-
 				var cardView = _cardDeckView.Dequeue();
 
 				var freeHandSlot = _handSlotViews.FirstOrDefault(hs => hs.CardView == null);

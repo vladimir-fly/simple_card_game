@@ -39,6 +39,13 @@ namespace SCG
 			InitViewCallbacks();
 
 			BindCallbacks();
+
+			InitPlayerHand();
+		}
+
+		private void InitPlayerHand()
+		{
+			for (var i = 0; i < 3; i++) GetCardModelCallback();
 		}
 
 		private void InitControllerCallbacks()

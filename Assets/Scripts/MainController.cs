@@ -18,7 +18,6 @@ namespace SCG
 
 		private static MainController _instance;
 		public static MainController Instance { get { return _instance ?? (_instance = new MainController()); } }
-		private MainController() { }
 
 		public void Init(List<CardModel> cardModels, int handSlotsCount = 3, int tableSlotsCount = 5)
 		{
@@ -34,9 +33,16 @@ namespace SCG
 		{
 			Debug.Log("[MainController][ReturnCards]");
 
-			var cardModels = _handSlots.Where(cardModel => cardModel != null).ToList();
+			var cardModels = new List<CardModel>();
+
+			cardModels.AddRange(_handSlots.Where(cardModel => cardModel != null).ToList());
+			cardModels.AddRange(_tableSlots.Where(cardModel => cardModel != null).ToList());
 			_handSlots.Clear();
+			_tableSlots.Clear();
+
 			cardModels.ForEach(_cardDeck.Enqueue);
+
+			_tableSlots.Clear();
 
 			if (ReturnCardsCallback != null)
 				ReturnCardsCallback();
